@@ -50,5 +50,5 @@ generatorReflector ref = (['A'..'Z'], ref)
 
 enigma :: [Char] -> [Int] -> [Char] -> [Char] -> [Char]
 enigma _ _ _ [] = []
-enigma pb rs ref (s:ss) =  [transform (listOfTransformations (generatePlugboard pb) (generateRotors rs) (generatorReflector ref) ) s]
+enigma pb rs ref (s:ss) =  [transform (listOfTransformations (generatePlugboard pb) (generateRotors rs) (generatorReflector ref) ) (toUpper s)]
                             ++ enigma pb (rotateFirstRotor rs) ref ss
