@@ -14,9 +14,8 @@ rotate :: Eq a => [a] -> Int -> [a]
 rotate xs n = if (n < 0) then rotateRight xs (abs n) else rotateLeft xs n
 
 rotor :: ([Char], [Char]) -> Char -> Char
-rotor ([],_) _ = '-';
+rotor ([],_) a = a
 rotor (x:xs, y:ys) a    | a == x = y
-                        | a == ' ' = ' '
                         | otherwise = rotor (xs, ys) a
 
 transform :: [([Char], [Char])] -> Char -> Char
