@@ -1,3 +1,5 @@
+module Enigma where
+
 import Data.Char
 
 rotateLeft :: Eq a => [a] -> Int -> [a]
