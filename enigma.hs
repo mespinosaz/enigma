@@ -29,26 +29,30 @@ reverseRotors :: [([Char], [Char])] -> [([Char], [Char])]
 reverseRotors [] = []
 reverseRotors (r:rs) = reverseRotors rs ++ [reverseRotor r]
 
-listOfTransformations :: ([Char], [Char]) -> [([Char], [Char])] -> ([Char], [Char]) -> [([Char], [Char])]
-listOfTransformations pb rs ref = [pb] ++ rs ++ [ref] ++ (reverseRotors rs) ++ [reverseRotor pb]
-
 rotateFirstRotor :: [Int] -> [Int]
 rotateFirstRotor (offset:rs) = (offset + 1) : rs
 
-generateRotor :: Int -> ([Char],[Char])
-generateRotor offset = (['A'..'Z'], rotate ['A'..'Z'] offset)
+buildRotor :: Int -> ([Char],[Char])
+buildRotor offset = (['A'..'Z'], rotate ['A'..'Z'] offset)
 
-generateRotors :: [Int] -> [([Char],[Char])]
-generateRotors [] = []
-generateRotors (r:rs) = generateRotor r : generateRotors rs
+buildRotors :: [Int] -> [([Char],[Char])]
+buildRotors [] = []
+buildRotors (r:rs) = buildRotor r : buildRotors rs
 
-generatePlugboard :: [Char] -> ([Char], [Char])
-generatePlugboard pb = (['A'..'Z'], pb)
+buildPlugBoard :: [Char] -> ([Char], [Char])
+buildPlugBoard pb = (['A'..'Z'], pb)
 
-generatorReflector :: [Char] -> ([Char], [Char])
-generatorReflector ref = (['A'..'Z'], ref)
+buildReflector :: [Char] -> ([Char], [Char])
+buildReflector ref = (['A'..'Z'], ref)
+
+buildEnigmaTransformations :: [Char] -> [Int] -> [Char] -> [([Char], [Char])]
+buildEnigmaTransformations pb rs ref = [buildPlugBoard pb]
+                                ++ (buildRotors rs)
+                                ++ [buildReflector ref]
+                                ++ (reverseRotors (buildRotors rs))
+                                ++ [reverseRotor (buildPlugBoard pb)]
 
 enigma :: [Char] -> [Int] -> [Char] -> [Char] -> [Char]
 enigma _ _ _ [] = []
-enigma pb rs ref (s:ss) =  [transform (listOfTransformations (generatePlugboard pb) (generateRotors rs) (generatorReflector ref) ) (toUpper s)]
+enigma pb rs ref (s:ss) =  [transform (buildEnigmaTransformations pb rs ref) (toUpper s)]
                             ++ enigma pb (rotateFirstRotor rs) ref ss
