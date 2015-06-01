@@ -11,7 +11,8 @@ rotateRight xs 0 = xs
 rotateRight xs n = rotateRight ([last xs] ++ init xs) (n-1)
 
 rotate :: Eq a => [a] -> Int -> [a]
-rotate xs n = if (n < 0) then rotateRight xs (abs n) else rotateLeft xs n
+rotate xs n     | n < 0 = rotateRight xs (abs n)
+                | otherwise = rotateLeft xs n
 
 rotor :: ([Char], [Char]) -> Char -> Char
 rotor ([],_) a = a
