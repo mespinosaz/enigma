@@ -14,8 +14,7 @@ cabal-version:       >=1.10
 library
     hs-source-dirs: src
     exposed-modules:     Enigma
-    build-depends:       base,
-                         hspec
+    build-depends:       base
     default-language:    Haskell2010
 
 test-suite spec
