@@ -1,49 +1,53 @@
-module Enigma where
+module Enigma (enigma) where
 
 import Data.Char
 import Data.Tuple
 
-rotateLeft :: Eq a => [a] -> Int -> [a]
+rotateLeft :: [a] -> Int -> [a]
 rotateLeft xs 0 = xs
 rotateLeft (x:xs) n = rotateLeft (xs ++ [x]) (n-1)
 
-rotateRight :: Eq a => [a] -> Int -> [a]
+rotateRight :: [a] -> Int -> [a]
 rotateRight xs 0 = xs
-rotateRight xs n = rotateRight ((last xs) : (init xs)) (n-1)
+rotateRight xs n = rotateRight (last xs : init xs) (n-1)
 
-rotate :: Eq a => [a] -> Int -> [a]
-rotate xs n     | n < 0 = rotateRight xs (abs n)
-                | otherwise = rotateLeft xs n
+rotate :: [a] -> Int -> [a]
+rotate xs n
+  | n < 0 = rotateRight xs (abs n)
+  | otherwise = rotateLeft xs n
 
-rotor :: ([Char], [Char]) -> Char -> Char
+rotor :: (String, String) -> Char -> Char
 rotor ([],_) a = a
-rotor (x:xs, y:ys) a    | a == x = y
-                        | otherwise = rotor (xs, ys) a
+rotor (x:xs, y:ys) a
+  | a == x = y
+  | otherwise = rotor (xs, ys) a
 
-transform :: [([Char], [Char])] -> Char -> Char
-transform (xs) a = foldr rotor a (reverse xs)
+reverseRotation :: [(String, String)] -> [(String, String)]
+reverseRotation rs = map swap (reverse rs)
 
-reverseRotors :: [([Char], [Char])] -> [([Char], [Char])]
-reverseRotors rs = map swap (reverse rs)
+rotation :: Int -> (String, String)
+rotation offset = wheel (rotate ['A'..'Z'] offset)
 
-rotateFirstRotor :: [Int] -> [Int]
-rotateFirstRotor (offset:rs) = (offset + 1) : rs
+rotations :: [Int] -> [(String, String)]
+rotations = map rotation
 
-buildRotor :: Int -> ([Char],[Char])
-buildRotor offset = buildWheel (rotate ['A'..'Z'] offset)
+wheel :: String -> (String, String)
+wheel xs = (['A'..'Z'], xs)
 
-buildRotors :: [Int] -> [([Char],[Char])]
-buildRotors rs = map buildRotor rs
+machineState :: String -> [Int] -> String -> [(String, String)]
+machineState pb rs ref =
+  wheel pb : rotations rs
+    ++ [wheel ref]
+    ++ reverseRotation (wheel pb : rotations rs)
 
-buildWheel :: [Char] -> ([Char], [Char])
-buildWheel xs = (['A'..'Z'], xs)
+cipher :: [(String, String)] -> Char -> Char
+cipher xs a = foldr rotor a (reverse xs)
 
-buildEnigmaTransformations :: [Char] -> [Int] -> [Char] -> [([Char], [Char])]
-buildEnigmaTransformations pb rs ref = (buildWheel pb) : (buildRotors rs)
-                                ++ [buildWheel ref]
-                                ++ (reverseRotors ((buildWheel pb) : (buildRotors rs)))
-
-enigma :: [Char] -> [Int] -> [Char] -> [Char] -> [Char]
+enigma :: String -> [Int] -> String -> String -> String
 enigma _ _ _ [] = []
-enigma pb rs ref (s:ss) =  transform (buildEnigmaTransformations pb rs ref) (toUpper s)
-                            : enigma pb (rotateFirstRotor rs) ref ss
+enigma pb rs ref (s:ss) =
+  cipher machine inputString
+    : enigma pb nextRotorPosition ref ss
+    where inputString = toUpper s
+          machine = machineState pb rs ref
+          nextRotorPosition = head rs + 1 : tail rs
